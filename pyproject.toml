@@ -1,0 +1,99 @@
+[project]
+name = "sensor-imputation-thesis"
+version = "0.1.0"
+authors = [
+    { name = "Christoffer Sommerlund", email = "christoffer.sommerlund@man-es.com" },
+]
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    #"babayaga>=4.2.8",
+    "babayaga>=4.2.1",
+    "calc2s>=0.3.5",
+    "data-insight==0.1.3a2",
+    "duckdb==1.1.0",
+    "fastparquet>=2024.11.0",
+    "matplotlib>=3.10.3",
+    "mlflow>=2.22.0",
+    "numpy>=2.2.6",
+    "optuna>=4.3.0",
+    "pyarrow>=19.0.1",
+    "pypots>=0.19",
+    "scikit-learn>=1.6.1",
+    "seaborn>=0.13.2",
+    "statsmodels>=0.14.4",
+    # "torch",
+    "torch>=2.2.2",
+    #"torchvision>=0.21.0",
+    "torchvision>=0.17.2",
+    "uc286core>=0.1.0",
+    "uc90core>=3.0.8",
+    # "util2s>=0.4.98",
+    "util2s<0.4.98",
+    "xgboost>=3.0.2",
+]
+
+
+[tool.uv]
+default-groups = ["dev", "test"]
+
+[dependency-groups]
+test = [
+    "fakeredis",
+    "moto",
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "ruff>=0.9",
+    "vcrpy",
+]
+dev = ["ipykernel>=6.29.5"]
+
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+extend-select = []     # A list of extra rules to enable
+extend-safe-fixes = []
+ignore = []            # A list of rules to ignore
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: mark a test as an integration test, which is NOT executed by CI/CD",
+    "smoke: For being run as a pre-commit hook (<1 second total)",
+]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+omit = ["*/dev/*", "*/tests/*"]
+source = ["src"]
+relative_files = true
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_also = [
+    # Don't complain if non-runnable code isn't run:
+    "if __name__ == .__main__.:",
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod",
+]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cu124", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+torchvision = [
+    { index = "pytorch-cu124", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
