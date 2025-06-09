@@ -1,4 +1,4 @@
-For my supervisors:
+For my supervisors and external thesis censor:
 
 This repository consists of my and my project parter's work. For my work, please check "nadire" folder. Specifically:
 1. For VAE model, please check "VAE_All_final_Mcar.py" file;
