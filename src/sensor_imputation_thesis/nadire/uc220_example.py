@@ -1,21 +1,18 @@
 import functools
+import hashlib
 import os
+from pathlib import Path
 
 import data_insight
 import pandas as pd
 from babayaga.clients.baba_yaga_client import BabaYagaClient
 from codebase_io.analytics_data.cached_analytics_data_client import CachedAnalyticsDataClient as ADC
+from data_insight import setup_duckdb
+from duckdb import DuckDBPyConnection as DuckDB
+from duckdb import DuckDBPyRelation as Relation
 from uc286core.uc220core_360.sfoc import ExcessSFOC
 from util2s.moodel.ceon_assets import CeonEngine
 from util2s.reference_mode.reference_mode_selector import ReferenceModeSelector
-
-from duckdb import DuckDBPyConnection as DuckDB
-from duckdb import DuckDBPyRelation as Relation
-from data_insight import setup_duckdb
-from duckdb import DuckDBPyRelation as Relation
-from pathlib import Path
-import hashlib
-from duckdb import DuckDBPyConnection as DuckDB
 
 from sensor_imputation_thesis.shared.baba_wrapper import BabayagaWrapper
 
@@ -34,15 +31,17 @@ con = data_insight.setup_duckdb()
 con.sql("SET enable_progress_bar=true")
 
 # I picked this one because it exists both in "timeseries" and "shipinfo"
-#pid = "237848bc2ed636c1ac85baea4755344c"
-pid="ea52565f40ed312a2f3a18071998ce0a"
+# pid = "237848bc2ed636c1ac85baea4755344c"
+pid = "ea52565f40ed312a2f3a18071998ce0a"
 engine_type = con.sql(f"SELECT engine_type FROM shipinfo WHERE productId == '{pid}'").df().engine_type.item()
 engine_uuid = con.sql(f"SELECT uuid FROM site_infos WHERE product_id == '{pid}'").df().uuid.item()
 templates = adc.find_services_for_service_template("c1ce91e3-ac23-4153-bcf3-29aae039dba4")
 services = adc.find_services(asset_uuid=engine_uuid, asset_traverse=False)
 service_uuid = services[services.apply(lambda x: x.config.get("app") == "uc00286-perf360", axis=1)].uuid
 
-df=pd.read_parquet("/home/ec2-user/SageMaker/sensor-imputation-thesis/src/sensor_imputation_thesis/nadire/df_combined.parquet")
+df = pd.read_parquet(
+    "/home/ec2-user/SageMaker/sensor-imputation-thesis/src/sensor_imputation_thesis/nadire/df_combined.parquet"
+)
 
 
 @functools.cache
@@ -75,5 +74,5 @@ for hour, group_df in df.set_index("time").groupby(pd.Grouper(freq="h")):
     result.append(dict(esfoc.evaluate(hourly_df).squeeze().items()))
 
 df = pd.DataFrame(result).dropna(how="all", axis=1)
-df.to_parquet("/home/ec2-user/SageMaker/sensor-imputation-thesis/src/sensor_imputation_thesis/nadire/sfoc_afterimpute.parquet")
-print(df)
+# df.to_parquet("/home/ec2-user/SageMaker/sensor-imputation-thesis/src/sensor_imputation_thesis/nadire/sfoc_afterimpute.parquet")
+# print(df)

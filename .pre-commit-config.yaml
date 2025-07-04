@@ -1,0 +1,37 @@
+# This configures actions which occur during "git commit ..."
+# It avoids the need for server-side validation, or ensures you don't fail server-side validation :)
+# Install it by doing "python -m pre-commit install"
+# In case your commit is rejected, it may have e.g. reformatted your files to pass the commit
+# Do "git add XYZ", and your commit should now pass
+
+
+# Ensures linting rules are obeyed (or ignored using `# noqa` )
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.5.0  # Use the ref you want to point at
+  hooks:
+    - id: check-added-large-files # Don't accidentally bloat git history
+      args: ['--maxkb=500']
+    - id: check-toml # Ensure valid toml
+    - id: check-json # Ensure valid json
+    - id: mixed-line-ending # Omitting this can cause cross-platform script issues
+      args: [--fix=lf]
+      files: '.*.sh'
+    # Some projects may want to protect the main branch
+    # - id: no-commit-to-branch
+    #   args: [--branch, main, --branch, master]
+
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.2.1
+  hooks:
+    - id: ruff # Ensures coding best practices via linting rules (ignored using `# noqa` )
+    - id: ruff-format # Ensures consistent formatting. Disable using `# fmt: off`
+      additional_dependencies: [ "--index-url=https://artifactory.ceon-dev.io/artifactory/api/pypi/pypi-team-analytics/simple/" ]
+
+# Ensure notebooks do not have contents, as this may bloat git history. Especially for e.g. plots
+- repo: https://github.com/kynan/nbstripout 
+  rev: 0.7.1
+  hooks:
+    - id: nbstripout
+      name: Remove output from notebooks
+      additional_dependencies: [ "--index-url=https://artifactory.ceon-dev.io/artifactory/api/pypi/pypi-team-analytics/simple/" ]
